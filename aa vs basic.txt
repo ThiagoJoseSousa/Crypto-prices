@@ -1,0 +1,26 @@
+file -> open folder para ir pro projeto direto.
+
+o npm precisa dar um npm init antes de instalar o webpack. 
+https://www.sitepoint.com/webpack-beginner-guide/
+
+os imports de um javascript padrão são 
+import '../node_modules/jquery/dist/jquery.min.js';
+import '../node_modules/axios/dist/axios.js';
+Isso é, pegando o path da library em questão e sem nomes, a função é exportada diretamente.
+Após expotar assim, já posso usar $ e axios, mesmo sem nomes. Mas com full path.
+
+IMPORTANTE ^^ Dá pra abrir a pasta node_modules com o site em live server, isso aumenta MUITO a precisão do import.
+Passei um bom tempo errando o nome e tomando o erro de mime type. A solução é arrumar o path, e pra isso é bom por em live. 
+e ir explorando as pastas do node_modules pelo browser. Só digitar node_modules após o url. 
+Caso o path esteja certo, aí sim o arquivo pode ser de uma framework ou algo assim, como foi uma lbirary react built
+(rechart)
+
+Com a função 'on' do jquery, vc consegue adicionar qualquer evento, inclusive em cadeia. PS: a função 'load' tem um callback 
+para o que ocorrerá depois do html ser carregado. 
+
+quando apssa de 100 arrays o mozilla gera mais outra array para separar de 0-100, 100 a 200, mas é só visual. 
+
+jquery tem bastante compatibilidade... Coloquei $() numa library externa e foi, comos e fosse um html element normal.
+
+normalmente as libraries tem um campo específico só pras especificações, que nem a swiper js. Prioridade é achar 
+esse campo.
