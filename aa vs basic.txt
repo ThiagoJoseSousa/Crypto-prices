@@ -24,3 +24,9 @@ jquery tem bastante compatibilidade... Coloquei $() numa library externa e foi, 
 
 normalmente as libraries tem um campo específico só pras especificações, que nem a swiper js. Prioridade é achar 
 esse campo.
+
+API tem formatos de informação diferentes, parecido com datas, uma moeda de ouro tem valor diferente de 1 dolar.
+
+instalação font-awesome é por cdn, pelo amor, npm pra isso dá global is undefined. W3schools prefere CDN tbm.
+Mesma coisa pro bootstrap. 
+Vejo um padrão aqui, as libraries que contém arquivo css parecem ser melhores ir pelo CDN. 

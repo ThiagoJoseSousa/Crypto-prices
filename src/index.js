@@ -4,11 +4,15 @@
 // //export default sharingTest;
 import '../node_modules/jquery/dist/jquery.min.js';
 import '../node_modules/axios/dist/axios.js';
-import "../node_modules/chart.js/dist/chart.umd.js";
+import '../node_modules/chart.js/dist/chart.umd.js';
 import debounce from './helpers/debounce.js';
 
 const appContainer = $("#AppContainer");
 
+const c= $('<canvas id="acquisitions"></canvas>');
+
+let h1 = $('<div></div>')
+appContainer.append(h1)
 
 const homeStore = {
 
@@ -79,15 +83,16 @@ const homeStore = {
 
     //UI
     createLinkCoins : () => {
-        homeStore.linksCoins = homeStore.storedCoins.map(
+        homeStore.linksCoins = '<div class="row">' + homeStore.storedCoins.map(
         coin => {
             return `<a href='#${coin.id}'>${coin.name}</a>`
         }
-    )
+    ) + '</div>'
     },
     updateUI : () =>{
         $('a').remove();
         homeStore.createLinkCoins();
+        //trending coins or search results
         appContainer.append(homeStore.linksCoins);
     }
 
@@ -129,10 +134,12 @@ const HashChange= () => {
         hash = hash.replace( "#" , "" );
         console.log(hash)
         
-
-
+        h1.html('<h1 class="py-3 bg-dark text-light text-center text-uppercase fs-2 fw-bold"><i class="fa-solid fa-angle-left"></i>Coiner!</h1>')
+        appContainer.append(c);
         fetchMarket(hash)
         
+    } else {
+        h1.html('<h1 class="py-3 bg-dark text-light text-center text-uppercase fs-2 fw-bold">Coiner!</h1>')
     }
     console.log(homeStore.linksCoins)
 }
@@ -140,12 +147,10 @@ const HashChange= () => {
 window.onhashchange = HashChange;
 HashChange();
 
-const t = $("<input type='text'></input>");
+// Search for a coin
+const t = $("<h2 class='fw-bold'>Search for a coin</h2><input type='text' class='container-fluid rounded fs-2'></input> <h2 class='fw-bold'>Trending coins</h2>");
 t.on('input', homeStore.setQuery)
 appContainer.append(t)
-
-const c= $('<canvas id="acquisitions"></canvas>');
-appContainer.append(c);
 
 let chart;
 
@@ -182,7 +187,7 @@ const displayGraph = async () => {
 
 };
 
-const displayHeader = async () => {
+const displayHeader = () => {
     $('header').remove();
     $('#coin-details').remove();
     const {data} = homeStore;
