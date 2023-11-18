@@ -1,7 +1,3 @@
-// import axios from "https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.0/esm/axios.min.js";
-
-// const sharingTest= (axios.get('https://api.coingecko.com/api/v3/search/trending'))
-// //export default sharingTest;
 import '../node_modules/jquery/dist/jquery.min.js';
 import '../node_modules/axios/dist/axios.js';
 import '../node_modules/chart.js/dist/chart.umd.js';
@@ -9,10 +5,35 @@ import debounce from './helpers/debounce.js';
 
 const appContainer = $("#AppContainer");
 
-const c= $('<canvas id="acquisitions"></canvas>');
+const c= $('<canvas id="graph"></canvas>');
 
-let h1 = $('<div></div>')
-appContainer.append(h1)
+let header = $('<header></header>')
+appContainer.append(header)
+
+const displaySearchSection = () => {
+
+    const searchSection = $("<section id='search-section'></section>")
+    const searchTitle = $("<h2 class='fw-bold'>Search for a coin</h2>")
+    const searchInput = $("<input type='text' class='container-fluid rounded fs-2'></input>"); 
+    const trendingTitle = $("<h2 class='fw-bold'>Trending coins</h2>")
+
+
+    searchTitle.appendTo(searchSection)
+    searchInput.appendTo(searchSection)
+    searchInput.on('input', homeStore.setQuery)
+    trendingTitle.appendTo(searchSection)
+
+    searchSection.appendTo(appContainer)
+
+    homeStore.updateLinks()
+}
+// make a new div called wrapper, sum the strings and change html()
+// the wrapper will be a row, making elements have max width
+// grid should be used to align the header.
+
+// Everything aligned to center
+// Details: The name to detail must be in flex same font size, different font weight, with border bottom 
+
 
 const homeStore = {
 
@@ -42,14 +63,14 @@ const homeStore = {
         name: item.name,
         image:  item.large,
         id: item.id,
-        priceBtc : coin.item.price_btc,
+        priceBtc : coin.item.price_btc.toFixed(10),
         priceUsd : (coin.item.price_btc * btcPrice).toFixed(10)
     }
     })
     console.log(coins)
     homeStore.storedCoins = coins;
     homeStore.trending = coins;
-    homeStore.updateUI()
+    homeStore.updateLinks()
     },
 
     setQuery : (e)=>{
@@ -78,22 +99,35 @@ const homeStore = {
         homeStore.storedCoins = homeStore.trending;
     }
 
-    homeStore.updateUI()
+    homeStore.updateLinks()
     }, 500),
 
     //UI
     createLinkCoins : () => {
-        homeStore.linksCoins = '<div class="row">' + homeStore.storedCoins.map(
+        homeStore.linksCoins = homeStore.storedCoins.map(
         coin => {
-            return `<a href='#${coin.id}'>${coin.name}</a>`
+            const coinLink =$("<div class='border-top search-result'></div>")
+            const coinInfo = `<img src='${coin.image}' />
+            <a href='#${coin.id}'>${coin.name}</a>`;
+            
+            coinLink.append(coinInfo);
+            
+            if (!coin.priceBtc){
+                return coinLink
+            } else{
+                const coinConversion = `<i class="fa-brands fa-bitcoin" style="color: #ff8000;"></i> 
+                ${coin.priceBtc} ${coin.priceUsd}`
+                coinLink.append(coinConversion)
+                return coinLink
+            }
         }
-    ) + '</div>'
+    )
     },
-    updateUI : () =>{
-        $('a').remove();
+    updateLinks : () =>{
+        $('.search-result').remove();
         homeStore.createLinkCoins();
         //trending coins or search results
-        appContainer.append(homeStore.linksCoins);
+        $('#search-section').append(homeStore.linksCoins);
     }
 
 }
@@ -122,24 +156,25 @@ homeStore.fetchCoins();
             )
             homeStore.data = dataRes.data;
             console.log(homeStore.graphData)      
-            displayGraph()
-            displayHeader();
+            displayCoinData();
     }
 
 const HashChange= () => {
 
     let hash = window.location.hash;
-    console.log(hash)
+    console.log(hash)        
+    $('#search-section').remove()
     if( hash.startsWith("#") && hash.length>2 ){
         hash = hash.replace( "#" , "" );
         console.log(hash)
         
-        h1.html('<h1 class="py-3 bg-dark text-light text-center text-uppercase fs-2 fw-bold"><i class="fa-solid fa-angle-left"></i>Coiner!</h1>')
-        appContainer.append(c);
+        header.html('<h1 class="py-3 bg-dark text-light text-center text-uppercase fs-2 fw-bold"><a href="#"><i class="fa-solid fa-angle-left"></i></a>Coiner!</h1>')
         fetchMarket(hash)
         
     } else {
-        h1.html('<h1 class="py-3 bg-dark text-light text-center text-uppercase fs-2 fw-bold">Coiner!</h1>')
+        $('#coin-info').remove()
+        header.html('<h1 class="py-3 bg-dark text-light text-center text-uppercase fs-2 fw-bold">Coiner!</h1>')
+        displaySearchSection()
     }
     console.log(homeStore.linksCoins)
 }
@@ -147,10 +182,7 @@ const HashChange= () => {
 window.onhashchange = HashChange;
 HashChange();
 
-// Search for a coin
-const t = $("<h2 class='fw-bold'>Search for a coin</h2><input type='text' class='container-fluid rounded fs-2'></input> <h2 class='fw-bold'>Trending coins</h2>");
-t.on('input', homeStore.setQuery)
-appContainer.append(t)
+
 
 let chart;
 
@@ -187,41 +219,50 @@ const displayGraph = async () => {
 
 };
 
-const displayHeader = () => {
-    $('header').remove();
-    $('#coin-details').remove();
+const displayCoinData = () => {
+    $('#coin-info').remove();
+
     const {data} = homeStore;
     console.log(data)
-    const header = `<header>
+    appContainer.append(c);
+    displayGraph()
+
+    const coinWrapper = $('<section id="coin-info"></section>')
+    
+    const coinTitle = $(`<div id="coin-title">
     <h2>${data.name} ${data.symbol}</h2>
     <img src=${data.image.large} />
-    </header>
-    <div id="coin-details">
-        <div>
-            <h4>Market cap rank</h4>
-            <span>${data.market_data.market_cap_rank}</span>
-        </div>
-        <div>
-            <h4>24h high</h4>
-            <span>${data.market_data.high_24h.usd}</span>
-        </div>
-        <div>
-            <h4>24h low</h4>
-            <span>${data.market_data.low_24h.usd}</span>
-        </div>
-        <div>
-            <h4>Circulating supply</h4>
-            <span>${data.market_data.circulating_supply}</span>
-        </div>
-        <div>
-            <h4>Current price</h4>
-            <span>${data.market_data.current_price.usd}</span>
-        </div>
-        <div>
-            <h4>1y change</h4>
-            <span>${data.market_data.price_change_percentage_1y.toFixed(2)}%</span>
-        </div>
+    </div>`);
+
+    const coinData = $(`<div id="coin-details">
+    <div>
+        <h4>Market cap rank</h4>
+        <span>${data.market_data.market_cap_rank}</span>
     </div>
-    `
-    appContainer.append(header)
+    <div>
+        <h4>24h high</h4>
+        <span>${data.market_data.high_24h.usd}</span>
+    </div>
+    <div>
+        <h4>24h low</h4>
+        <span>${data.market_data.low_24h.usd}</span>
+    </div>
+    <div>
+        <h4>Circulating supply</h4>
+        <span>${data.market_data.circulating_supply}</span>
+    </div>
+    <div>
+        <h4>Current price</h4>
+        <span>${data.market_data.current_price.usd}</span>
+    </div>
+    <div>
+        <h4>1y change</h4>
+        <span>${data.market_data.price_change_percentage_1y.toFixed(2)}%</span>
+    </div> 
+    </div>`)
+
+    coinWrapper.appendTo(appContainer)
+    coinTitle.appendTo(coinWrapper)
+    c.appendTo(coinWrapper)
+    coinData.appendTo(coinWrapper)
 }
