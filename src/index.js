@@ -1,6 +1,6 @@
-import '../node_modules/jquery/dist/jquery.min.js';
-import '../node_modules/axios/dist/axios.js';
-import '../node_modules/chart.js/dist/chart.umd.js';
+import $ from 'jquery';
+import axios from 'axios';
+import Chart from 'chart.js/auto';
 import debounce from './helpers/debounce.js';
 
 const appContainer = $("#AppContainer");
@@ -34,13 +34,6 @@ const displaySearchSection = () => {
     
     homeStore.updateLinks()
 }
-// make a new div called wrapper, sum the strings and change html()
-// the wrapper will be a row, making elements have max width
-// grid should be used to align the header.
-
-// Everything aligned to center
-// Details: The name to detail must be in flex same font size, different font weight, with border bottom 
-
 
 const homeStore = {
 
@@ -74,7 +67,7 @@ const homeStore = {
         priceUsd : (coin.item.price_btc * btcPrice).toFixed(4)
     }
     })
-    console.log(coins)
+
     homeStore.storedCoins = coins;
     homeStore.trending = coins;
     homeStore.updateLinks()
@@ -82,7 +75,6 @@ const homeStore = {
 
     setQuery : (e)=>{
         homeStore.query = e.target.value;
-        console.log(homeStore.query)
         homeStore.searchCoins();
     },
 
@@ -91,7 +83,6 @@ const homeStore = {
         if( query.length > 2){
 
             const res = await axios.get(`https://api.coingecko.com/api/v3/search?query=${query}`)
-            console.log(res.data)
 
         const coins = res.data.coins.map(coin => {
             return {
@@ -133,7 +124,6 @@ const homeStore = {
     updateLinks : () =>{
         $('.search-result').remove();
         homeStore.createLinkCoins();
-        //trending coins or search results
         $('#search-section').append(homeStore.linksCoins);
 
     }
@@ -148,11 +138,6 @@ homeStore.fetchCoins();
                 axios.get(`https://api.coingecko.com/api/v3/coins/${id}?localization=false&market_data=true`),
             ])
 
-            
-
-           console.log(graphRes.data)
-           console.log(dataRes.data)
-           
            homeStore.graphData = graphRes.data.prices.map(price => {
                const [date, p] = price;
                const formatedDate = new Date(date).toLocaleDateString("en-us");
@@ -162,28 +147,25 @@ homeStore.fetchCoins();
                 price: p }
             }
             )
-            homeStore.data = dataRes.data;
-            console.log(homeStore.graphData)      
+            homeStore.data = dataRes.data;   
             displayCoinData();
     }
 
 const HashChange= () => {
 
     let hash = window.location.hash;
-    console.log(hash)        
+       
     $('.container').remove()
     if( hash.startsWith("#") && hash.length>2 ){
         hash = hash.replace( "#" , "" );
-        console.log(hash)
         
-        header.html('<div class="container"><div class="col-xl-8 mx-auto position-relative"><h1 class="py-3 text-light text-uppercase fs-2 fw-bold row"> <a href="#" class="text-reset col-xl-8 position-absolute start-0 text-start"><i class="fa-solid fa-angle-left "></i></a><span class="text-center fs-3">Coiner!</span></h1></div></div>')
+        header.html('<div class="container"><div class="col-sm-8 col-xxl-12 mx-auto position-relative"><h1 class="py-3 text-light text-uppercase fs-2 fw-bold row"> <a href="#" class="text-reset col-sm-8 col-xxl-12 position-absolute start-0 text-start"><i class="fa-solid fa-angle-left "></i></a><span class="text-center fs-3">Coiner!</span></h1></div></div>')
         fetchMarket(hash)
         
     } else {
         header.html('<h1 class="py-3 text-light text-center text-uppercase fs-3 fw-bold">Coiner!</h1>')
         displaySearchSection()
     }
-    console.log(homeStore.linksCoins)
 }
 
 window.onhashchange = HashChange;
@@ -255,8 +237,6 @@ const displayCoinData = () => {
     $('#coin-info').remove();
 
     const {data} = homeStore;
-    console.log(data)
-    
 
     const responsiveContainer = $('<div class="container"></div>');
     const rowContainer = $('<div class="row"></div>')

@@ -7,4 +7,7 @@ module.exports = {
       title: "Crypto coin",
     }),
   ],
+  resolve: {
+    modules: ['node_modules'],
+  }
 };
